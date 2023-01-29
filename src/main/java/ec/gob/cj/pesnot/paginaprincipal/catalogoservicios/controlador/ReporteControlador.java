@@ -45,6 +45,8 @@ public class ReporteControlador {
         	dataSource = this.extraerInformacionActosNotariales();
         } else if(type.equalsIgnoreCase("Tarifa")) {
         	dataSource = this.extraerInformacionTarifas();
+        } else if(type.equalsIgnoreCase("Libro")) {
+        	dataSource = this.extraerInformacionTarifas();
         }
         exportAllFileData(
         		type,
@@ -61,6 +63,8 @@ public class ReporteControlador {
     		sourceJrxmlFile = this.getClass().getResourceAsStream("/ActosNotariales.jrxml");
         } else if(type.equalsIgnoreCase("Tarifa")) {
         	sourceJrxmlFile = this.getClass().getResourceAsStream("/Tarifas.jrxml");
+        }else if(type.equalsIgnoreCase("Libro")) {
+        	sourceJrxmlFile = this.getClass().getResourceAsStream("/ReporteLibro.jrxml");
         }
         JasperPrint jasperPrint;
         ServletOutputStream outputStream;
