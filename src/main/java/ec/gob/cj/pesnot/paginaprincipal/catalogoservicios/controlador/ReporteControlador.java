@@ -1,10 +1,8 @@
 package ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.controlador;
 
-import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.ReporteActosNotariales;
-import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.ReporteTarifas;
-import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.ActoNotarial;
-import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.RangoMotivo;
+import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.*;
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.ActoNotarialService;
+import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.LibroService;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -31,25 +29,27 @@ import java.util.Map;
 @RequestMapping("/reportes")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ReporteControlador {
-    final ActoNotarialService dataActoNotarial;
+    final ActoNotarialService actoNotarialService;
+    final LibroService libroService;
 
-    public ReporteControlador(ActoNotarialService data) {
-        this.dataActoNotarial = data;
+    public ReporteControlador(ActoNotarialService actoNotarialService, LibroService libroService) {
+        this.actoNotarialService = actoNotarialService;
+        this.libroService = libroService;
     }
 
     @GetMapping(value = "{type}/{fileType}")
-    public void download(@PathVariable String fileType, @PathVariable String type, HttpServletResponse response) 
-    		throws FileNotFoundException {
-    	List<?> dataSource = null;
-    	if (type.equalsIgnoreCase("ActoNotarial")) {
-        	dataSource = this.extraerInformacionActosNotariales();
-        } else if(type.equalsIgnoreCase("Tarifa")) {
-        	dataSource = this.extraerInformacionTarifas();
-        } else if(type.equalsIgnoreCase("Libro")) {
-        	dataSource = this.extraerInformacionTarifas();
+    public void download(@PathVariable String fileType, @PathVariable String type, HttpServletResponse response)
+            throws FileNotFoundException {
+        List<?> dataSource = null;
+        if (type.equalsIgnoreCase("ActoNotarial")) {
+            dataSource = this.extraerInformacionActosNotariales();
+        } else if (type.equalsIgnoreCase("Tarifa")) {
+            dataSource = this.extraerInformacionTarifas();
+        } else if (type.equalsIgnoreCase("Libro")) {
+            dataSource = this.extraerInformacionLibros();
         }
         exportAllFileData(
-        		type,
+                type,
                 fileType,
                 dataSource,
                 response);
@@ -57,19 +57,19 @@ public class ReporteControlador {
 
     private void exportAllFileData(String type, String filetype, List<?> list, HttpServletResponse response)
             throws FileNotFoundException {
-    	String filename = "reporte";
-    	InputStream sourceJrxmlFile = null;
-    	if (type.equalsIgnoreCase("ActoNotarial")) {
-    		sourceJrxmlFile = this.getClass().getResourceAsStream("/ActosNotariales.jrxml");
-        } else if(type.equalsIgnoreCase("Tarifa")) {
-        	sourceJrxmlFile = this.getClass().getResourceAsStream("/Tarifas.jrxml");
-        }else if(type.equalsIgnoreCase("Libro")) {
-        	sourceJrxmlFile = this.getClass().getResourceAsStream("/ReporteLibro.jrxml");
+        String filename = "reporte";
+        InputStream sourceJrxmlFile = null;
+        if (type.equalsIgnoreCase("ActoNotarial")) {
+            sourceJrxmlFile = this.getClass().getResourceAsStream("/ActosNotariales.jrxml");
+        } else if (type.equalsIgnoreCase("Tarifa")) {
+            sourceJrxmlFile = this.getClass().getResourceAsStream("/Tarifas.jrxml");
+        } else if (type.equalsIgnoreCase("Libro")) {
+            sourceJrxmlFile = this.getClass().getResourceAsStream("/ReporteLibro.jrxml");
         }
         JasperPrint jasperPrint;
         ServletOutputStream outputStream;
         try {
-        	JasperReport jasperReport = JasperCompileManager.compileReport(sourceJrxmlFile);
+            JasperReport jasperReport = JasperCompileManager.compileReport(sourceJrxmlFile);
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(list);
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("dataSource", dataSource);
@@ -112,8 +112,8 @@ public class ReporteControlador {
         // Nose porque no se visualiza nunca el primer registro en el reporte por ello estas 2 lineas
         ReporteActosNotariales reporteTest = new ReporteActosNotariales("TEST", "TEST", "TEST");
         dataSource.add(reporteTest);
-        for (ActoNotarial actoNotarial : this.dataActoNotarial.getActosNotarialesActivos()) {
-        	ReporteActosNotariales reporte = new ReporteActosNotariales();
+        for (ActoNotarial actoNotarial : this.actoNotarialService.getActosNotarialesActivos()) {
+            ReporteActosNotariales reporte = new ReporteActosNotariales();
             reporte.setNombreCatalogoActoNotarial(actoNotarial.getNombreCatalogoActoNotarial());
             reporte.setArticuloCatalogoActoNotarial(actoNotarial.getArticuloCatalogoActoNotarial());
             reporte.setNombreTipoLibro(actoNotarial.getIdTipoLibro().getNombreTipoLibro());
@@ -121,21 +121,36 @@ public class ReporteControlador {
         }
         return dataSource;
     }
-    
+
     private List<ReporteTarifas> extraerInformacionTarifas() {
         List<ReporteTarifas> dataSource = new ArrayList<>();
         // Se agrega un registro previo para que se muestre correctamente todos los datos
         // Nose porque no se visualiza nunca el primer registro en el reporte por ello estas 2 lineas
         ReporteTarifas reporteTest = new ReporteTarifas("TEST", "TEST", "TEST", true, "10.00", true);
         dataSource.add(reporteTest);
-        for (RangoMotivo rangoMotivo : this.dataActoNotarial.getListaMostrar()) {
-        	ReporteTarifas reporte = new ReporteTarifas();
+        for (RangoMotivo rangoMotivo : this.actoNotarialService.getListaMostrar()) {
+            ReporteTarifas reporte = new ReporteTarifas();
             reporte.setNombreCatalogo(rangoMotivo.getActo().getNombreCatalogoActoNotarial());
             reporte.setArticuloCatalogo(rangoMotivo.getActo().getArticuloCatalogoActoNotarial());
             reporte.setNombreTipoLibro(rangoMotivo.getActo().getIdTipoLibro().getNombreTipoLibro());
             reporte.setEsTabla(rangoMotivo.getActo().getUsaCalculoTablaCatalogoActoNotarial());
             reporte.setValorCalculado(rangoMotivo.getPrecio());
             reporte.setEstadoCatalogo(rangoMotivo.getActo().getEstadoCatalogoActoNotarial());
+            dataSource.add(reporte);
+        }
+        return dataSource;
+    }
+
+    private List<ReporteLibros> extraerInformacionLibros() {
+        List<ReporteLibros> dataSource = new ArrayList<>();
+        ReporteLibros reporteTest = new ReporteLibros(1L, "TEST", "TEST", true);
+        dataSource.add(reporteTest);
+        for (Libro libro : this.libroService.getLibrosActivos()) {
+            ReporteLibros reporte = new ReporteLibros();
+            reporte.setIdTipoLibro(libro.getIdTipoLibro());
+            reporte.setNombreAdjuntoLibro(libro.getIdAdjuntoLibro().getNombreAdjuntoLibro());
+            reporte.setNombreTipoLibro(libro.getNombreTipoLibro());
+            reporte.setEstadoActivo(libro.isEstadoActivo());
             dataSource.add(reporte);
         }
         return dataSource;
