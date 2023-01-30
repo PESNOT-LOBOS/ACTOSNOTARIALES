@@ -18,10 +18,10 @@ import springfox.documentation.swagger2.annotations.*;
 @Component
 public class SwaggerConfig {
 
-    private ApiInfo apiInfo() {
-        return new ApiInfo("MyApp Rest APIs",
+        private ApiInfo apiInfo() {
+        return new ApiInfo("Actos Tarifas",
                 "APIs for MyApp.",
-                "1.0",
+                "0.0.1",
                 "Terms of service",
                 new Contact("test", "www.pesnot.com", "test@pesnot.net"),
                 "License of API",
@@ -29,13 +29,15 @@ public class SwaggerConfig {
                 Collections.emptyList());
     }
 
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.OAS_30)
+        @Bean
+        public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .build();
     }
+
+
 }
