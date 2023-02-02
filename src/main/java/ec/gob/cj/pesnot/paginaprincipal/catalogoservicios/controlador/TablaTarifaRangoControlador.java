@@ -17,7 +17,7 @@ import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.TablaTarifaRang
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.TablaTarifaRangoService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class TablaTarifaRangoControlador {
 	

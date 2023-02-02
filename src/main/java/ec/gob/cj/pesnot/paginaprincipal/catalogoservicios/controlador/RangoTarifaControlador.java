@@ -18,7 +18,7 @@ import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.RangoTarifa;
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.RangoTarifaService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class RangoTarifaControlador {
 

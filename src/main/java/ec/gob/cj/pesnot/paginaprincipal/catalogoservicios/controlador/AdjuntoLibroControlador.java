@@ -16,7 +16,7 @@ import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.AdjuntoLibro;
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.AdjuntoLibroService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class AdjuntoLibroControlador {
 	

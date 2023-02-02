@@ -16,7 +16,7 @@ import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.TablaTarifa;
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.TablaTarifaService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class TablaTarifaControlador {
 	

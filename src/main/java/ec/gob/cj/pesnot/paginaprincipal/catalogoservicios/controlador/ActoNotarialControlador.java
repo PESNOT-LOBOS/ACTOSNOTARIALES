@@ -13,7 +13,7 @@ import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.RangoMotivo;
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.ActoNotarialService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ActoNotarialControlador {
     @Autowired

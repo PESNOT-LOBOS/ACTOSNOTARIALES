@@ -17,7 +17,7 @@ import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.BaseCobroActo;
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.BaseCobroActoService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class BaseCobroActoControlador {
 	

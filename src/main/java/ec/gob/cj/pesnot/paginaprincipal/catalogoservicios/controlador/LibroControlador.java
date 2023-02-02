@@ -16,7 +16,7 @@ import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.Libro;
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.service.LibroService;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class LibroControlador {
 

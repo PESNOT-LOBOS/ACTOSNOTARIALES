@@ -7,9 +7,11 @@ import java.util.stream.Collectors;
 
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.Modelo.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import ec.gob.cj.pesnot.paginaprincipal.catalogoservicios.repository.ActoNotarialRepository;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ActoNotarialService {
@@ -23,11 +25,11 @@ public class ActoNotarialService {
     @Autowired
     private TablaTarifaCatalogoActoService tablaCatalogoSvc;
 
-	@Autowired
-	private TablaTarifaRangoService tablaRangoSvc;
+    @Autowired
+    private TablaTarifaRangoService tablaRangoSvc;
 
-	@Autowired
-	private TablaTarifaService tablaSvc;
+    @Autowired
+    private TablaTarifaService tablaSvc;
 
     @Autowired
     private BaseCobroActoService baseCobroService;
@@ -37,6 +39,27 @@ public class ActoNotarialService {
 
     @Autowired
     private MotivoCobroActoService motivoCobroActoSvc;
+    @Autowired
+    RestTemplate restTemplate;
+
+    public Long getSBUParametro() {
+        Long SBU = null;
+        try {
+            ResponseEntity<Parametro> response =
+                    restTemplate.getForEntity(
+                            "https://pesnot.net/m04-admpes-api-parametros-0.0.1-SNAPSHOT/v1/parametros/nombre/SBU",
+                            Parametro.class);
+            Parametro parametro = response.getBody();
+            SBU = parametro.getValorParametro();
+        } catch (NullPointerException e) {
+            System.out.println("No se obtuvo nada");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return SBU;
+    }
 
     public ActoNotarialService(ActoNotarialRepository actoNotarialRepository) {
         super();
@@ -154,8 +177,8 @@ public class ActoNotarialService {
         return actoMotivoBuscado.getValorMotivoCobroCatalogoActo();
     }
 
-	public Double getTarifaActosTablaRango(String idActo, String idTabla, String idRango) {
-        Double tarifa=null;
+    public Double getTarifaActosTablaRango(String idActo, String idTabla, String idRango) {
+        Double tarifa = null;
         try {
             TablaTarifaCatalogoActo actoTabla = new TablaTarifaCatalogoActo();
             actoTabla = tablaCatalogoSvc.getTablaActoUnico(idActo, idTabla);
@@ -163,21 +186,20 @@ public class ActoNotarialService {
             TablaTarifa tabla = new TablaTarifa();
             tabla = tablaSvc.getUnicoByNombre(actoTabla.getIdTablaTarifa().getNombreTablaTarifa());
             tablaRango = tablaRangoSvc.getTablaRangoUnico(tabla.getIdTablaTarifa().toString(), idRango);
-            //TODO poner aqui el microservicio que llame a los parametros, swap 450
-            tarifa=tablaRango.getPorcentajeTablaTarifaRango()*450;
+            Long SBU= getSBUParametro();
+
+            tarifa = tablaRango.getPorcentajeTablaTarifaRango() * SBU.doubleValue();
             return tarifa;
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             System.out.println("No se pudo obtener las relaciones, asegurese que los parametros han sido enviados correctamente");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("ERROR GENERAL " + e);
             e.printStackTrace();
         }
 
         return tarifa;
 
-	}
+    }
 
     // TRAER NOMBRE DE LA TABLA A PARTIR DE LOS ACTOS SE MANEJAN POR RANGOS
     public String getTablaActos(String idTabla, String idCatalogo) {
@@ -219,8 +241,8 @@ public class ActoNotarialService {
         List<ActoNotarial> listadoActosConTarifa = this.getActosConTarifas();
         List<ActoNotarial> listadoActosSinTarifa = new ArrayList<ActoNotarial>();
 
-        System.out.println("activos"+listadoActosActivos.size());
-        System.out.println("contarifa"+listadoActosConTarifa.size());
+        System.out.println("activos" + listadoActosActivos.size());
+        System.out.println("contarifa" + listadoActosConTarifa.size());
 
         List<Long> idsEnTarifas = new ArrayList<Long>();
         for (ActoNotarial id : listadoActosConTarifa) {
@@ -230,7 +252,7 @@ public class ActoNotarialService {
         listadoActosSinTarifa = listadoActosActivos.stream()
                 .filter(acto -> !idsEnTarifas.contains(acto.getIdCatalogoActoNotarial())).collect(Collectors.toList());
 
-        System.out.println("listadoSinTarifa"+ listadoActosSinTarifa.size());
+        System.out.println("listadoSinTarifa" + listadoActosSinTarifa.size());
         try {
             for (MotivoCobroCatalogoActo tarifa : listadoTarifasMotivo) {
                 if (tarifa.getEstadoMotivoCobroCatalogoActo()) {
@@ -264,12 +286,10 @@ public class ActoNotarialService {
                 listadoPrecios.add(rangoNuevo);
             }
             return listadoPrecios;
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             System.out.println("ERROR AL APUNTAR A UN ATRIBUTO NULL, REVISE LOS PARAMETROS MANDADOS");
             System.out.println("O BASE DE DATOS");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("ERROR GENERAL");
             e.printStackTrace();
         }
