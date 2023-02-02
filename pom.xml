@@ -8,8 +8,8 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ec.gob.cj.pesnot.paginaprincipal.catalogoservicios</groupId>
-	<artifactId>BACK_PESNOT</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>m04-admpes-api-actosnotariales</artifactId>
+	<version>0.0.1</version>
 	<name>BACK_PESNOT</name>
 	<description>BACK_PESNOT</description>
 	<properties>
