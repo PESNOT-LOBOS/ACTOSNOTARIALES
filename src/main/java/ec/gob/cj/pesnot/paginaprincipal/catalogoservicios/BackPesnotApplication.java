@@ -34,7 +34,6 @@ public class BackPesnotApplication extends SpringBootServletInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         super.onStartup(servletContext);
-
     }
     @Bean
     public RestTemplate getresttemplate() {

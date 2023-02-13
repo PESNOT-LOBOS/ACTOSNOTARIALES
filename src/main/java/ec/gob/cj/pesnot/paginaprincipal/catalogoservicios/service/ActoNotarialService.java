@@ -52,7 +52,7 @@ public class ActoNotarialService {
             Parametro parametro = response.getBody();
             SBU = parametro.getValorParametro();
         } catch (NullPointerException e) {
-            System.out.println("No se obtuvo nada");
+            System.out.println("No se obtuvo nada, revise bien los parametros mandados");
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -186,7 +186,7 @@ public class ActoNotarialService {
             TablaTarifa tabla = new TablaTarifa();
             tabla = tablaSvc.getUnicoByNombre(actoTabla.getIdTablaTarifa().getNombreTablaTarifa());
             tablaRango = tablaRangoSvc.getTablaRangoUnico(tabla.getIdTablaTarifa().toString(), idRango);
-            Long SBU= getSBUParametro();
+            Long SBU = getSBUParametro();
 
             tarifa = tablaRango.getPorcentajeTablaTarifaRango() * SBU.doubleValue();
             return tarifa;
@@ -229,12 +229,13 @@ public class ActoNotarialService {
         List<RangoMotivo> listadoPrecios = new ArrayList<RangoMotivo>();
         List<MotivoCobroCatalogoActo> listadoTarifasMotivo = new ArrayList<MotivoCobroCatalogoActo>();
         listadoTarifasMotivo = motivoSvc.getMotivoCobroCatalogo();
+        System.out.println("listadoTarifasMotivo");
         System.out.println(listadoTarifasMotivo.size());
 
         List<TablaTarifaCatalogoActo> listadoTarifaRango = new ArrayList<TablaTarifaCatalogoActo>();
         listadoTarifaRango = tablaCatalogoSvc.getActoRangoTarifa();
 
-        System.out.println("listadoTarifasMotivo");
+        System.out.println("listadoTarifasRango");
         System.out.println(listadoTarifaRango.size());
 
         List<ActoNotarial> listadoActosActivos = this.getActosNotarialesActivos();
@@ -260,7 +261,6 @@ public class ActoNotarialService {
                     rangoNuevo.setId(tarifa.getIdMotivoCobroCatalogoActo());
                     rangoNuevo.setActo(tarifa.getIdCatalogoActoNotarial());
                     String precio = tarifa.getIdCatalogoActoNotarial().getTarifaCatalogoActoNotarial().toString();
-                    System.out.println("precio" + precio);
                     rangoNuevo.setPrecio(precio);
                     listadoPrecios.add(rangoNuevo);
                 }
@@ -285,6 +285,7 @@ public class ActoNotarialService {
                 rangoNuevo.setPrecio(null);
                 listadoPrecios.add(rangoNuevo);
             }
+            System.out.println(listadoPrecios.size());
             return listadoPrecios;
         } catch (NullPointerException e) {
             System.out.println("ERROR AL APUNTAR A UN ATRIBUTO NULL, REVISE LOS PARAMETROS MANDADOS");
